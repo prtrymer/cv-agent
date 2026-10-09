@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>DOU fixture</title><link>https://jobs.dou.ua/</link><description>synthetic demo data</description>
+<item>
+<title>Full-Stack Developer (NestJS / Next.js) в Acme iGaming, віддалено</title>
+<link>https://jobs.dou.ua/companies/acme-igaming/vacancies/900001/</link>
+<description><![CDATA[<p>Acme iGaming builds real-money casino products for regulated markets. We are looking for a Full-Stack Developer to own features end to end.</p><p><b>Requirements:</b></p><ul><li>3+ years of commercial experience with TypeScript</li><li>NestJS and Node.js on the backend, PostgreSQL, Redis</li><li>Next.js / React on the frontend</li><li>Real-time features over WebSocket</li><li>Experience with AWS</li></ul><p><b>Nice to have:</b> iGaming domain, Docker, CI/CD with GitHub Actions.</p><p>Fully remote, $3500–4500 per month.</p>]]></description>
+<pubDate>Mon, 21 Sep 2026 10:00:00 +0300</pubDate>
+</item>
+<item>
+<title>Senior Go Engineer в Payflow, Київ</title>
+<link>https://jobs.dou.ua/companies/payflow/vacancies/900003/</link>
+<description><![CDATA[<p>Go, Kafka, Kubernetes. 5+ years of experience. Office in Kyiv.</p>]]></description>
+<pubDate>Mon, 21 Sep 2026 11:00:00 +0300</pubDate>
+</item>
+<item>
+<title>QA Automation Engineer в TestCo, віддалено</title>
+<link>https://jobs.dou.ua/companies/testco/vacancies/900004/</link>
+<description><![CDATA[<p>Playwright and TypeScript test automation.</p>]]></description>
+<pubDate>Mon, 21 Sep 2026 12:00:00 +0300</pubDate>
+</item>
+<item>
+<title>Full-Stack Developer в Zero Task Labs, віддалено</title>
+<link>https://jobs.dou.ua/companies/zerotasklabs/vacancies/372338/</link>
+<description><![CDATA[<p>NestJS, Next.js, PostgreSQL.</p>]]></description>
+<pubDate>Mon, 21 Sep 2026 13:00:00 +0300</pubDate>
+</item>
+</channel></rss>

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cv-agent</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #1b1f24; --muted: #5f6b7a; --line: #e3e7ec;
+    --accent: #2f5288; --accent-ink: #ffffff; --good: #1f7a4d; --warn: #9a6a00; --bad: #b3261e; --chip: #eef2f7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111418; --panel: #1a1f25; --ink: #e8ecf1; --muted: #98a3b1; --line: #2b323b; --accent: #7aa2e3; --accent-ink: #0d1117; --good: #5cc28f; --warn: #e0b04a; --bad: #f08a80; --chip: #232a33; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+  .bar { max-width: 1100px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  h1 { font-size: 17px; margin: 0 8px 0 0; letter-spacing: .3px; }
+  .tiles { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tile { background: var(--chip); border-radius: 8px; padding: 5px 10px; min-width: 96px; }
+  .tile b { display: block; font-size: 15px; }
+  .tile span { color: var(--muted); font-size: 11.5px; }
+  .grow { flex: 1; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 7px; padding: 6px 11px; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  main { max-width: 1100px; margin: 0 auto; padding: 14px 16px 60px; }
+  .job { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+  .job h2 { font-size: 14px; margin: 0 0 6px; display: flex; gap: 8px; align-items: center; }
+  .job pre { margin: 0; max-height: 190px; overflow: auto; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); white-space: pre-wrap; }
+  .question { margin-top: 10px; padding: 10px; border-radius: 8px; background: var(--chip); }
+  .question .opts { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .question input { font: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); width: min(420px, 100%); }
+  .spinner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite alternate; }
+  @keyframes pulse { from { opacity: .25 } to { opacity: 1 } }
+  nav.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+  nav.tabs button { border-radius: 999px; }
+  nav.tabs button.on { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+  nav.tabs input { margin-left: auto; font: inherit; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); width: 210px; max-width: 100%; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; display: grid; grid-template-columns: 46px 1fr; gap: 12px; }
+  .score { width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; font-size: 16px; background: var(--chip); }
+  .score.hi { color: var(--good); } .score.mid { color: var(--warn); } .score.lo { color: var(--bad); }
+  .title { font-weight: 600; font-size: 15px; }
+  .meta { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .chip { background: var(--chip); border-radius: 999px; padding: 2px 9px; font-size: 12px; }
+  .reason { font-size: 12.5px; margin-top: 6px; color: var(--muted); }
+  .reason.bad { color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+  .empty { color: var(--muted); padding: 30px 0; text-align: center; }
+  .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--panel); padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px); }
+  .toast.show { opacity: 1; }
+  details.add { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; }
+  details.add summary { cursor: pointer; font-weight: 600; }
+  textarea.paste, input.link { width: 100%; font: inherit; padding: 8px; border-radius: 7px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); margin-top: 8px; }
+  textarea.paste { min-height: 140px; }
+  .hint { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
+  @media (max-width: 600px) { .card { grid-template-columns: 1fr; } .score { width: auto; height: 30px; justify-self: start; padding: 0 10px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>cv-agent</h1>
+    <div class="tiles" id="tiles"></div>
+    <div class="grow"></div>
+    <button id="btn-find" class="primary">Find new vacancies</button>
+    <button id="btn-write">Write CVs</button>
+  </div>
+</header>
+<main>
+  <section id="jobs"></section>
+  <details class="add"><summary>+ Add a vacancy</summary>
+    <input class="link" id="add-url" placeholder="Vacancy link — company site, DOU, Djinni, LinkedIn, Glassdoor…">
+    <textarea class="paste" id="add-text" placeholder="For LinkedIn / Glassdoor (the agent can't open them): paste the whole posting text here"></textarea>
+    <div class="actions"><button class="primary" id="add-go">Screen it and write the CV</button><span class="hint">Company sites, DOU and Djinni are read from the link; LinkedIn and Glassdoor need the text.</span></div>
+  </details>
+  <nav class="tabs" id="tabs"></nav>
+  <section id="list"></section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const TABS = [
+  { id: 'ready', label: 'Ready to apply', statuses: ['ready'] },
+  { id: 'shortlist', label: 'Shortlisted — your call', statuses: ['shortlisted'] },
+  { id: 'review', label: 'Needs review', statuses: ['needs_review'] },
+  { id: 'external', label: 'Only on LinkedIn & co', statuses: ['external'] },
+  { id: 'approved', label: 'Approved, CV not written yet', statuses: ['tailor_pending'] },
+  { id: 'borderline', label: 'Borderline', statuses: ['borderline'] },
+  { id: 'queue', label: 'Waiting to be screened', statuses: ['triage_pending'] },
+  { id: 'applied', label: 'Applied', statuses: ['applied'] },
+  { id: 'rejected', label: 'Rejected', statuses: ['rejected', 'failed'] },
+  { id: 'hidden', label: 'Skipped & dismissed', statuses: ['filtered', 'dismissed'] },
+];
+let state = { vacancies: [], usage: null, jobs: { run: null, apply: null }, tab: 'ready', q: '', closed: new Set() };
+try { state.tab = localStorage.getItem('cv-agent-tab') || 'ready'; } catch {}
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const safeUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '#');
+const money = (v) => (v == null ? '—' : `$${Number(v).toFixed(v < 1 ? 3 : 2)}`);
+const ago = (iso) => { if (!iso) return ''; const d = (Date.now() - Date.parse(iso)) / 864e5; return !isFinite(d) ? '' : d < 1 ? 'today' : `${Math.floor(d)}d ago`; };
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 3200); }
+
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : { method: 'POST', headers: { 'content-type': 'application/json', 'x-cv-agent': '1' }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
+  return j;
+}
+
+function renderTiles() {
+  const u = state.usage;
+  if (!u) return;
+  const left = u.credits ? u.credits.total - u.credits.used : null;
+  $('tiles').innerHTML = [
+    u.credits ? `<div class="tile"><b>${money(left)}</b><span>credits left of ${money(u.credits.total)}</span></div>` : '',
+    `<div class="tile"><b>${money(u.today.usd)}</b><span>today · ${u.today.calls} calls · cap ${money(u.dailyBudget)}</span></div>`,
+    `<div class="tile"><b>${money(u.month.usd)}</b><span>this month · ${u.month.calls} calls</span></div>`,
+    u.keySet ? '' : `<div class="tile"><b style="color:var(--bad)">No API key</b><span>set LLM_API_KEY in .env</span></div>`,
+  ].join('');
+}
+
+function renderJobs() {
+  const out = [];
+  for (const job of [state.jobs.apply, state.jobs.run]) {
+    if (!job || state.closed.has(job.startedAt)) continue;
+    const q = job.question;
+    out.push(`<div class="job"><h2>${job.running ? '<span class="spinner"></span>' : ''}${esc(job.label)}</h2>
+      <pre>${esc(job.lines.slice(-14).join('\n'))}${job.result ? `\n${esc(job.result)}` : ''}</pre>
+      ${q ? `<div class="question"><b>${esc(q.label)}</b>${q.required ? ' <span class="chip">required</span>' : ''}
+        ${q.pause ? `<div class="opts"><button class="primary" data-answer="">Continue</button></div>` : q.link ? `
+        <div class="opts"><input id="answer-input" placeholder="https://… or name@company.com"><button class="primary" id="answer-send">Use this link</button></div>
+        <div class="opts"><button data-answer="">Cancel — I'll apply myself</button></div>` : `
+        ${q.options.length ? `<div class="opts">${q.options.map((o) => `<button data-answer="${esc(o)}">${esc(o)}</button>`).join('')}</div>` : `<div class="opts"><input id="answer-input" placeholder="Your answer (saved for next time)"><button class="primary" id="answer-send">Answer</button></div>`}
+        <div class="opts"><button data-answer="">Skip — I'll fill it in the browser</button></div>`}</div>` : ''}
+      ${!job.running ? `<div class="actions"><button data-close-job="${esc(job.startedAt)}">Close</button></div>` : job.kind === 'apply' ? `<div class="actions"><button data-cancel-apply="1">Cancel — close the form window</button></div>` : ''}</div>`);
+  }
+  $('jobs').innerHTML = out.join('');
+  $('btn-find').disabled = Boolean(state.jobs.run?.running);
+  const approved = state.vacancies.filter((v) => v.status === 'tailor_pending').length;
+  $('btn-write').textContent = approved ? `Write CVs (${approved} approved)` : 'Write CVs';
+  $('btn-write').disabled = Boolean(state.jobs.run?.running) || !approved;
+}
+
+function renderTabs() {
+  $('tabs').innerHTML = TABS.map((t) => {
+    const n = state.vacancies.filter((v) => t.statuses.includes(v.status)).length;
+    return `<button data-tab="${t.id}" class="${state.tab === t.id ? 'on' : ''}">${esc(t.label)} · ${n}</button>`;
+  }).join('') + `<input id="search" placeholder="Search title or company" value="${esc(state.q)}">`;
+}
+
+function card(v) {
+  const s = v.score == null ? '' : v.score >= 70 ? 'hi' : v.score >= 55 ? 'mid' : 'lo';
+  const file = (name) => v.pack && v.pack.files.find((f) => f.endsWith(name));
+  const packLink = (name, label) => (file(name) ? `<a target="_blank" href="/packs/${encodeURIComponent(v.pack.dir)}/${encodeURIComponent(file(name))}">${label}</a>` : '');
+  const busy = Boolean(state.jobs.apply?.running);
+  const acts = [];
+  if (['ready', 'needs_review'].includes(v.status)) {
+    acts.push(`<button class="primary" data-apply="${esc(v.id)}" ${v.status === 'needs_review' ? 'data-force="1"' : ''} ${busy ? 'disabled' : ''}>Apply — open the filled form</button>`);
+    acts.push(`<button data-preview="${esc(v.id)}" ${busy ? 'disabled' : ''}>Preview fill</button>`);
+    acts.push(`<button data-mark="applied" data-id="${esc(v.id)}">I applied myself</button>`);
+  }
+  if (v.status === 'shortlisted') acts.push(`<button class="primary" data-mark="tailor" data-id="${esc(v.id)}">Write CV</button>`);
+  if (['borderline', 'rejected', 'failed', 'filtered'].includes(v.status)) acts.push(`<button data-mark="tailor" data-id="${esc(v.id)}">Write CV anyway</button>`);
+  if (v.status === 'needs_review') acts.push(`<button data-mark="tailor" data-id="${esc(v.id)}">Rewrite CV</button>`);
+  if (v.status === 'external') {
+    acts.push(`<a class="primary-link" target="_blank" rel="noopener" href="${esc(safeUrl(v.url))}"><button class="primary" tabindex="-1">Open posting</button></a>`);
+    acts.push(`<button data-paste-toggle="${esc(v.id)}">Paste posting text → write CV</button>`);
+    acts.push(`<button data-mark="applied" data-id="${esc(v.id)}">I applied myself</button>`);
+  }
+  if (v.status === 'dismissed') acts.push(`<button data-mark="triage" data-id="${esc(v.id)}">Restore</button>`);
+  else if (v.status !== 'applied') acts.push(`<button data-mark="dismissed" data-id="${esc(v.id)}">Dismiss</button>`);
+  const links = [packLink('_CV.pdf', 'CV (PDF)'), packLink('cover_letter.txt', 'Cover letter'), packLink('application-form.png', 'Filled form'), packLink('application-confirmation.png', 'Confirmation')].filter(Boolean);
+  const bad = ['rejected', 'failed', 'filtered', 'needs_review'].includes(v.status);
+  return `<div class="card">
+    <div class="score ${s}">${v.score ?? '—'}</div>
+    <div>
+      <div class="title"><a target="_blank" rel="noopener" href="${esc(safeUrl(v.url))}">${esc(v.title)}</a></div>
+      <div class="meta">${[v.company, v.location, v.family, v.source, v.postedAt ? `posted ${ago(v.postedAt)}` : `found ${ago(v.discoveredAt)}`].filter(Boolean).map(esc).join(' · ')}</div>
+      ${v.why.length ? `<div class="chips">${v.why.map((w) => `<span class="chip">${esc(w)}</span>`).join('')}</div>` : ''}
+      ${v.reason && !/^score \d+$|^pack ready$/.test(v.reason) ? `<div class="reason ${bad ? 'bad' : ''}">${esc(v.reason)}</div>` : ''}
+      ${v.status === 'shortlisted' && v.blockers.length ? `<div class="reason">But: ${esc(v.blockers.join('; '))}</div>` : ''}
+      <div class="actions">${acts.join('')}${links.length ? `<span class="meta" style="margin-left:6px">${links.join(' · ')}</span>` : ''}</div>
+      ${state.pasting === v.id ? `<textarea class="paste" id="paste-text" placeholder="Copy the whole posting from ${esc(v.source.replace('alert-', ''))} and paste it here"></textarea>
+        <div class="actions"><button class="primary" data-paste-send="${esc(v.id)}">Screen it and write the CV</button><button data-paste-toggle="">Cancel</button></div>` : ''}
+    </div></div>`;
+}
+
+function renderList() {
+  const tab = TABS.find((t) => t.id === state.tab) || TABS[0];
+  const q = state.q.toLowerCase();
+  const rows = state.vacancies.filter((v) => tab.statuses.includes(v.status) && (!q || `${v.title} ${v.company}`.toLowerCase().includes(q)));
+  $('list').innerHTML = rows.length ? rows.slice(0, 300).map(card).join('') : `<div class="empty">Nothing here${q ? ' for this search' : ''}.</div>`;
+}
+
+let lastQuestion = 0;
+/** A question or "log in, then Continue" is easy to miss below the fold: scroll to it and flag the tab. */
+function flagQuestion() {
+  const q = state.jobs.apply?.question;
+  document.title = q ? '⏳ cv-agent — waiting for you' : 'cv-agent';
+  if (q && q.id !== lastQuestion) { lastQuestion = q.id; $('jobs').scrollIntoView({ behavior: 'smooth' }); toast(q.pause ? 'The agent is waiting for you — see the box at the top' : 'The form has a question for you'); }
+}
+
+function render() { renderTiles(); renderJobs(); renderTabs(); renderList(); flagQuestion(); }
+
+async function refresh(all = true) {
+  try {
+    const [vac, jobs] = await Promise.all([all ? api('/api/vacancies') : state.vacancies, api('/api/jobs')]);
+    state.vacancies = vac; state.jobs = jobs;
+    const active = document.activeElement;
+    if (active && ['search', 'answer-input', 'paste-text', 'add-url', 'add-text'].includes(active.id)) { renderTiles(); renderJobs(); renderList(); flagQuestion(); if (active.id === 'answer-input') $('answer-input')?.focus(); }
+    else render();
+  } catch (e) { toast(`Can't reach the agent: ${e.message}`); }
+}
+async function refreshUsage() { try { state.usage = await api('/api/usage'); renderTiles(); } catch {} }
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  try {
+    if (b.dataset.tab) { state.tab = b.dataset.tab; try { localStorage.setItem('cv-agent-tab', state.tab); } catch {} render(); return; }
+    if (b.id === 'btn-find') { await api('/api/run', {}); toast('Searching — progress shows above'); }
+    else if (b.id === 'btn-write') { await api('/api/run', { stage: 'tailor' }); toast('Writing CVs'); }
+    else if (b.dataset.apply) { await api(`/api/vacancies/${encodeURIComponent(b.dataset.apply)}/apply`, { force: b.dataset.force === '1' }); toast('Opening the form in the agent\'s browser window…'); }
+    else if (b.dataset.preview) { await api(`/api/vacancies/${encodeURIComponent(b.dataset.preview)}/preview`, {}); toast('Filling the form in the background…'); }
+    else if (b.dataset.mark) {
+      if (b.dataset.mark === 'applied' && !confirm('Mark as applied? It will also be added to your applied list.')) return;
+      await api(`/api/vacancies/${encodeURIComponent(b.dataset.id)}/${b.dataset.mark}`, {});
+      toast({ dismissed: 'Dismissed — find it under "Skipped & dismissed"', applied: 'Marked applied', tailor: 'Queued — press "Write CVs"', triage: 'Restored to the screening queue' }[b.dataset.mark]);
+    }
+    else if ('pasteToggle' in b.dataset) { state.pasting = b.dataset.pasteToggle || null; renderList(); $('paste-text')?.focus(); return; }
+    else if (b.dataset.pasteSend) { await api(`/api/vacancies/${encodeURIComponent(b.dataset.pasteSend)}/text`, { text: $('paste-text').value }); state.pasting = null; toast('Screening and writing the CV — progress shows above'); }
+    else if (b.id === 'add-go') { await api('/api/add', { url: $('add-url').value, text: $('add-text').value }); $('add-url').value = ''; $('add-text').value = ''; toast('Adding the vacancy — progress shows above'); }
+    else if (b.id === 'answer-send') { await api('/api/answer', { answer: $('answer-input').value }); }
+    else if ('answer' in b.dataset) { await api('/api/answer', { answer: b.dataset.answer }); }
+    else if (b.dataset.cancelApply) { await api('/api/apply/cancel', {}); toast('Cancelled — nothing was submitted'); }
+    else if (b.dataset.closeJob) { state.closed.add(b.dataset.closeJob); renderJobs(); return; }
+    await refresh();
+  } catch (err) {
+    if (/already applied to/.test(err.message) && b.dataset.apply && confirm(`${err.message}\n\nApply anyway?`)) {
+      await api(`/api/vacancies/${encodeURIComponent(b.dataset.apply)}/apply`, { force: true }).catch((e2) => toast(e2.message));
+      return refresh();
+    }
+    toast(err.message);
+  }
+});
+document.addEventListener('input', (e) => { if (e.target.id === 'search') { state.q = e.target.value; renderList(); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.id === 'answer-input') $('answer-send').click(); });
+
+refresh(); refreshUsage();
+setInterval(() => refresh(Boolean(state.jobs.run?.running || state.jobs.apply?.running) || Date.now() % 15000 < 2100), 2000);
+setInterval(refreshUsage, 60000);
+</script>
+</body>
+</html>

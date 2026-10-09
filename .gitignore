@@ -1,0 +1,24 @@
+node_modules/
+.env
+.env.*
+!.env.example
+out/
+logs/
+data/state.db*
+secrets/
+data/browser-profile/
+*.eml
+# Personal profile, application data, and generated documents
+data/profile.yaml
+data/answers.yaml
+data/base/
+data/salary.json
+# Credentials and private keys
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+credentials*.json
+secrets*.json
+.DS_Store

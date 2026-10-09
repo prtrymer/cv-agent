@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="uk">
+<head><meta charset="utf-8"><title>Djinni reply (fixture)</title></head>
+<body>
+  <!-- Shaped like Djinni's "Відгук на вакансію" form, markup read off the live site on 2026-09-25: a message box and
+       a Резюме picker (a hidden <select> under a tom-select widget) of the CVs in the account. "+ Додати резюме" is an
+       htmx link that swaps the whole picker block for an upload field (input name="cv_file"); the file then goes with
+       the reply itself, and is kept in the profile only if "Зберегти це резюме в моєму профілі" is ticked. The swap
+       lands after a short delay, like the real request. With #navlink the link goes to another page instead. -->
+  <h2>Відгук на вакансію</h2>
+  <form method="post" enctype="multipart/form-data">
+    <label class="form-label" for="message">Повідомлення</label>
+    <textarea id="message" name="message"></textarea>
+    <label><input type="checkbox" name="save_msg_template"> Зберегти повідомлення як шаблон</label>
+    <div class="mb-2">
+      <label class="form-label"> Резюме </label>
+      <div class="js-cv-select-block">
+        <select class="form-select js-cv-url-input" name="cv_file_upload_id" id="tomselect-1" tabindex="-1" style="display:none">
+          <option value="101" selected>Anton_Chaika_CV.pdf</option>
+          <option value="">Не показувати резюме</option>
+          <option value="101">Anton_Chaika_CV.pdf</option>
+        </select>
+        <div class="ts-wrapper"><input type="text" role="combobox" id="tomselect-1-ts-control" placeholder="Не показувати резюме"></div>
+        <a id="add-cv" href="#" role="button" class="small">+ Додати резюме</a>
+      </div>
+    </div>
+    <button type="submit">Надіслати відгук</button>
+  </form>
+  <script>
+    const add = document.getElementById('add-cv');
+    if (location.hash === '#navlink') add.setAttribute('href', '/my/profile/cv');
+    add.addEventListener('click', (e) => {
+      if (add.getAttribute('href') !== '#') return;
+      e.preventDefault();
+      setTimeout(() => {
+        document.querySelector('.js-cv-select-block').outerHTML = `
+          <div class="js-cv-input-block">
+            <input type="file" accept="application/pdf" class="form-control js-cv-file-input" name="cv_file" id="cv_file_input">
+            <div class="form-text">Djinni приймає тільки резюме в форматі PDF і розміром до 10MB.</div>
+            <div class="form-check"><input type="checkbox" name="save_profile_cv" id="save_profile_cv">
+              <label for="save_profile_cv">Зберегти це резюме в моєму профілі</label></div>
+            <a href="#" role="button" class="small">&larr; Обрати зі своїх резюме</a>
+          </div>`;
+      }, 400);
+    });
+  </script>
+</body>
+</html>

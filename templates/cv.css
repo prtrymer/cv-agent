@@ -1,0 +1,20 @@
+/* templates/cv.css — tailored CV styling. wkhtmltopdf-safe: tables and floats, no flex/grid. */
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Carlito", "Calibri", "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 9.2pt; line-height: 1.27; color: #1d1d1f; }
+.page { padding: 10mm 13mm 9mm; }
+h1 { font-size: 19pt; letter-spacing: 1.6pt; margin: 0; font-weight: 700; }
+.headline { font-size: 9.2pt; letter-spacing: 1.1pt; text-transform: uppercase; color: #2f5288; margin-top: 0.8mm; font-weight: 700; }
+.contacts { font-size: 8.6pt; color: #444; margin-top: 0.8mm; }
+h2 { font-size: 9.2pt; letter-spacing: 1.8pt; text-transform: uppercase; color: #2f5288; border-bottom: 0.6pt solid #2f5288; padding-bottom: 0.5mm; margin: 3.2mm 0 1.4mm; }
+p { margin: 0 0 1.1mm; }
+table.row { width: 100%; border-collapse: collapse; }
+table.row td { padding: 0; vertical-align: baseline; }
+td.r { text-align: right; white-space: nowrap; color: #555; font-size: 8.6pt; padding-left: 3mm; }
+.job { margin-top: 1.5mm; }
+.nested { padding-left: 3.5mm; }
+.tag { color: #555; }
+ul { margin: 0.5mm 0 0; padding-left: 4.2mm; }
+li { margin: 0 0 0.5mm; }
+.skills p { margin: 0 0 0.5mm; }

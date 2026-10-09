@@ -1,0 +1,10 @@
+# Offline demo: fixture feeds + mock model, no network, no keys. `npm run demo`
+extends: agent.yaml
+llm: { provider: mock, mockDir: fixtures/llm }
+cache: { redisUrlEnv: CV_AGENT_DEMO_REDIS }
+alerts: { enabled: false }       # the demo never touches a real mailbox
+pipeline: { approveBeforeTailor: false }   # the demo walks the whole funnel to a ready pack
+paths: { out: out/demo, logs: out/demo/logs, db: out/demo/state.db, watchlist: null, appliedSeed: fixtures/applied.txt }
+sources:
+  - { id: dou-demo, kind: dou, url: fixtures/feeds/dou.xml }
+  - { id: djinni-demo, kind: djinni, url: fixtures/feeds/djinni.xml }

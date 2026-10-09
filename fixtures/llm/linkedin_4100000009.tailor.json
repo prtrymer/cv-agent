@@ -1,0 +1,80 @@
+{
+  "headline": "Full Stack Engineer · TypeScript / NestJS / Next.js / PostgreSQL",
+  "summary": "Full Stack Engineer with 3.5 years shipping production web products in TypeScript, React and Node.js (NestJS) on PostgreSQL — most recently a licensed multi-market sportsbook and casino platform, and before that a casino lootbox game built from scratch and delivered through a gamification platform to live players. I own features end to end, from data model and API through UI, tests and CI/CD, including real-time updates over WebSocket and Redis-backed shared state. Daily development with AI coding agents (Claude Code, Codex) under test-and-review guardrails.",
+  "entries": [
+    {
+      "engagement": "coolbet",
+      "bullets": [
+        {
+          "id": "coolbet.markets",
+          "text": null
+        },
+        {
+          "id": "coolbet.react19",
+          "text": null
+        }
+      ]
+    },
+    {
+      "engagement": "megablocks",
+      "bullets": [
+        {
+          "id": "mb.lootbox",
+          "text": null
+        },
+        {
+          "id": "mb.realtime",
+          "text": null
+        },
+        {
+          "id": "mb.atomic-reveal",
+          "text": null
+        },
+        {
+          "id": "mb.redis",
+          "text": null
+        }
+      ]
+    },
+    {
+      "engagement": "yolo",
+      "bullets": [
+        {
+          "id": "yolo.etl",
+          "text": null
+        },
+        {
+          "id": "yolo.search-messaging",
+          "text": null
+        }
+      ]
+    },
+    {
+      "engagement": "fice",
+      "bullets": [
+        {
+          "id": "fice.backend",
+          "text": null
+        }
+      ]
+    }
+  ],
+  "omit": [
+    "estonia",
+    "golf"
+  ],
+  "skills_first": [
+    "NestJS",
+    "Next.js",
+    "PostgreSQL",
+    "Redis",
+    "WebSocket"
+  ],
+  "include_ai_section": false,
+  "cover_letter": {
+    "intro": "I'm Anton — a fullstack developer with 3.5 years of experience in TypeScript, React and NestJS, and I'd love to be considered for the Full-Stack Developer role at Acme iGaming.",
+    "snapshot": "Quick snapshot: a year of end-to-end work on a casino lootbox game — a NestJS backend on hexagonal architecture with PostgreSQL, Redis and an event bus, real-time updates over WebSocket and the provably-fair reveal its operating licence requires, delivered through a gamification platform into a live casino site. Today I ship features into the shared React + TypeScript frontend of a licensed sportsbook and casino, including its migration to React 19.",
+    "before": "Before that: a polyglot microservice platform tracking game and casino performance, where I built a Python ETL service and worked with Elasticsearch, MongoDB and RabbitMQ — so iGaming isn't a new domain for me, it's most of my track record.",
+    "proof": "And the first thing I ever shipped — a student platform on NestJS and Prisma — is still in production, serving up to ~500 concurrent users."
+  }
+}

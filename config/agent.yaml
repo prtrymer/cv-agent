@@ -1,0 +1,131 @@
+# config/agent.yaml — runtime settings. Secrets live in .env, never here.
+mode: dry-run                   # dry-run: local packs + report only. live: sheet + submissions (next phase)
+timezone: Europe/Prague
+workingHours:
+  days: [1, 2, 3, 4, 5]
+  start: "09:00"
+  end: "17:30"
+  czechHolidays: true
+  extraDaysOff: []              # e.g. ["2026-12-31"]
+
+paths:
+  profile: data/profile.yaml
+  answers: data/answers.yaml
+  coverLetterBase: data/base/cover_letter.md
+  appliedSeed: data/applied.txt # snapshot of your tracking sheet; the live sheet replaces it next phase
+  prompts: prompts
+  css: templates/cv.css
+  out: out
+  logs: logs
+  db: data/state.db
+  watchlist: data/companies.yaml   # companies whose own job boards (Greenhouse, Lever, Ashby…) are read every run
+
+llm:
+  provider: openai-compatible   # "mock" = fixtures, no network (config/demo.yaml and the tests)
+  baseUrl: https://openrouter.ai/api/v1
+  apiKeyEnv: LLM_API_KEY
+  timeoutMs: 180000             # a slow host can take 100 s+ on a long plan; a timed-out call may still be billed
+  maxRetries: 4
+  maxRepairRounds: 1
+  toolChoice: forced            # forced | required | auto — relax if the provider rejects a forced tool_choice
+  circuitBreakerFailures: 5
+  pricing:                      # USD per 1M tokens, used when the provider doesn't report cost; null = tokens only.
+                                # One price for all stages: extract runs on the ~3x cheaper mimo-v2.5, so its cost reads high.
+    inputPerM: 0.435            # xiaomi/mimo-v2.5-pro on OpenRouter, 2026-09-23 — update if you change the model
+    cachedInputPerM: null       # null = billed at inputPerM (conservative)
+    outputPerM: 0.87
+  # Reasoning is off everywhere: live tests (2026-09-23) showed MiMo ignores reasoning limits (it once spent a whole
+  # 6,000-token call thinking and returned nothing), and with it off the same job took 26 s instead of 222 s at a
+  # lower cost with no loss in quality. The repair round is the safety net for a plan that fails a check.
+  # provider: several hosts serve MiMo and some are slow (6 tok/s seen) — prefer the fastest, but never above
+  # ~1.3x Xiaomi's own price (USD per 1M tokens), so a fast-but-expensive host can't sneak in.
+  stages:
+    triage: { model: xiaomi/mimo-v2.5-pro, prompt: triage/v3, maxTokens: 1500, temperature: 0.1, extraBody: { reasoning: { enabled: false }, provider: { ignore: [AtlasCloud], sort: throughput, max_price: { prompt: 0.6, completion: 1.2 } } } }
+    tailor: { model: xiaomi/mimo-v2.5-pro, prompt: tailor/v3, maxTokens: 4000, temperature: 0.3, extraBody: { reasoning: { enabled: false }, provider: { ignore: [AtlasCloud], sort: throughput, max_price: { prompt: 0.6, completion: 1.2 } } } }
+    extract: { model: xiaomi/mimo-v2.5, prompt: extract/v2, maxTokens: 3000, temperature: 0, extraBody: { reasoning: { enabled: false }, provider: { ignore: [AtlasCloud], sort: throughput, max_price: { prompt: 0.2, completion: 0.4 } } } }
+    answer: { model: xiaomi/mimo-v2.5-pro, prompt: answer/v1, maxTokens: 3000, temperature: 0.2, extraBody: { reasoning: { enabled: false }, provider: { ignore: [AtlasCloud], sort: throughput, max_price: { prompt: 0.6, completion: 1.2 } } } }
+  budget: { dailyUsd: 1.0, dailyTokens: 5000000 }   # dollars are the real cap: $1 is ~3.4M tokens at MiMo prices; tokens only guard a provider that reports no cost
+
+cache:
+  redisUrlEnv: REDIS_URL        # unset or unreachable -> SQLite fallback, logged once
+  ttlDays: { triage: 30, tailor: 14, extract: 30, answer: 30 }
+
+pipeline:
+  maxTriagePerRun: 40
+  maxTailorPerRun: 8
+  approveBeforeTailor: true     # screening only shortlists; you pick which get a CV (npm run review, or the dashboard)
+  concurrency: 2
+  applyThreshold: 70
+  borderlineMin: 55
+  vacancyCharLimit: 6000
+  maxAttempts: 3
+  maxGapMonths: 2
+  yearsOk: 5                    # roles asking up to 5 years (total or per technology) are fine — the CV still says 3.5
+  minSeniority: middle          # screening rejects anything it rates below this (junior | middle | senior)
+  maxAgeDays: 14                # older postings are skipped before any model call; feeds reach back ~30 days
+  roleFamilies: [fullstack, backend, frontend, java]   # positioning per family lives in data/profile.yaml
+
+prefilter:                      # regexes, case-insensitive; free, runs before any LLM call
+  titleInclude: [typescript, javascript, node, nest, react, next, angular, "full[- ]?stack", "front[- ]?end", "back[- ]?end", "\\bjava\\b", "\\bweb\\b", "software engineer", developer, engineer, розробник, програміст]
+  titleExclude: ["\\bqa\\b", tester, "\\bdesigner", devops, "\\bsre\\b", "data scientist", "machine learning", android, "\\bios\\b", "\\.net", "c#", "\\bphp", golang, "\\bgo\\b", ruby, flutter, unity, "c\\+\\+", embedded, "\\bsales", recruiter, marketing, "\\bseo\\b", "\\bsupport\\b", "project manager", "product manager", principal, "head of", director, "\\bcto\\b", "\\bvp\\b"]
+  maxYearsRequired: 6
+  skipJuniorTitles: true        # trainee / intern / junior-only titles never reach the model
+  djinni:                       # Djinni hides the reply form from profiles below these: checked on the job page, free
+    experienceYears: 3          # what your Djinni profile says (not the CV's 3.5)
+    countries: [europe, "\\beu\\b", czech, world, anywhere]   # "Countries where we consider candidates" must match one; "Ukraine" alone doesn't
+
+sources:                        # open each URL in a browser once before the first real run
+  - { id: dou-node, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js" }
+  - { id: dou-frontend, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End" }
+  - { id: dou-java, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java" }
+  # A DOU feed shows only its latest 25: narrower feeds (by experience, remote, search) reach ~2.4x more (73 → 172, 2026-09-25).
+  - { id: dou-node-1-3, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js&exp=1-3" }
+  - { id: dou-node-3-5, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js&exp=3-5" }
+  - { id: dou-node-remote, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js&remote" }
+  - { id: dou-frontend-1-3, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End&exp=1-3" }
+  - { id: dou-frontend-3-5, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End&exp=3-5" }
+  - { id: dou-frontend-remote, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End&remote" }
+  - { id: dou-java-1-3, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java&exp=1-3" }
+  - { id: dou-java-3-5, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java&exp=3-5" }
+  - { id: dou-java-remote, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java&remote" }
+  - { id: dou-fullstack, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=fullstack" }
+  - { id: dou-typescript, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=typescript" }
+  - { id: djinni-js, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=JavaScript" }
+  - { id: djinni-node, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Node.js" }
+  - { id: djinni-fullstack, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Fullstack" }
+  - { id: djinni-java, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Java" }
+  - { id: djinni-react, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=React.js" }
+  - { id: djinni-angular, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Angular" }
+  - { id: wwr-fullstack, kind: rss, url: "https://weworkremotely.com/categories/remote-full-stack-programming-jobs.rss" }
+  - { id: wwr-backend, kind: rss, url: "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss" }
+  # Djinni keywords must match its list exactly ("React.js", not "React"); an unknown one silently returns every job.
+
+alerts:                         # LinkedIn / Glassdoor job-alert emails → the company's own posting (see README)
+  enabled: true                 # IMAP login to the agent Gmail verified 2026-09-23
+  host: imap.gmail.com
+  port: 993
+  mailbox: INBOX                # the agent's own Gmail, fed by a forwarding filter in your main account
+  lookbackDays: 7
+  senders: [jobs-noreply@linkedin.com, jobalerts-noreply@linkedin.com, noreply@glassdoor.com, donotreply@match.indeed.com, pomuzeme@jobs.cz, magic@djinni.co]
+
+apply:                          # `npm run apply` — fills company application forms; you always press Submit
+  mode: assisted                # assisted: visible browser, you review and submit · simulate: headless, screenshots only
+  browserProfile: data/browser-profile   # the agent's own Chromium profile (cookies for sites you log in to), not your Chrome
+  waitMinutes: 30               # how long it watches for the confirmation page after filling
+  maxFreeTextChars: 1500
+  # Boards behind a bot check whose "Apply" needs an account: never opened in the agent's window (see README → Applying)
+  protectedBoards: [weworkremotely.com]
+
+ats:
+  probeTtlDays: 30               # a company with no public board found is looked up again after this
+
+http:
+  userAgent: "cv-agent/0.1 (personal job-search assistant; contact: antn.chaika@gmail.com)"
+  timeoutMs: 20000
+  minIntervalMsPerHost: 3000
+  maxBytes: 3000000
+
+render:
+  engine: playwright            # playwright (Chromium from `npx playwright install chromium`) | wkhtmltopdf | chromium | none
+  binary: null                  # wkhtmltopdf/chromium only; defaults to the engine name on PATH
+  maxPages: 2
