@@ -1,0 +1,18 @@
+<!doctype html>
+<!-- Test fixture shaped like a PeopleForce career form in Ukrainian (seen live via DOU, 2026-09-23). -->
+<html lang="uk"><head><meta charset="utf-8"><title>You are launched - Node.js developer</title>
+<style>.f { margin: 12px 0; } label, .lbl { display: block; } .editor [contenteditable] { min-height: 80px; border: 1px solid #ccc; }</style></head>
+<body><form onsubmit="event.preventDefault(); document.body.innerHTML = '<h1>Дякуємо! Вашу заявку надіслано</h1>'">
+  <div class="f"><label for="fn">Ім'я *</label><input id="fn" name="first_name" required></div>
+  <div class="f"><label for="ln">Прізвище *</label><input id="ln" name="last_name" required></div>
+  <div class="f"><label for="em">Електронна пошта *</label><input id="em" type="email" name="email" required></div>
+  <div class="f"><label for="ph">Номер телефону</label><select aria-label="Код країни"><option>+420</option><option>+380</option></select><input id="ph" type="tel" name="phone"></div>
+  <div class="f"><label for="mob">Чи був комерційний досвід роботи з мобільними додатками? *</label><select id="mob" name="q1" required><option value=""></option><option>Так</option><option>Ні</option></select></div>
+  <div class="f"><label for="sal">Бажана базова компенсація *</label><input id="sal" name="salary" required><select aria-label="Валюта"><option>USD - United States Dollar</option><option>EUR - Euro</option></select></div>
+  <div class="f"><div class="lbl">Резюме *</div><input type="file" name="resume" accept=".doc,.docx,.pdf,.rtf" required></div>
+  <div class="f editor"><div class="lbl">Супровідний лист</div><div class="toolbar"><button type="button">B</button><button type="button">i</button></div><div contenteditable="true"><p><br></p></div></div>
+  <p>Цей кар'єрний сайт захищено reCAPTCHA.</p>
+  <button type="submit">Застосувати</button>
+</form>
+<footer>Працює на PeopleForce <select onchange="document.querySelector('form').reset(); document.title = 'RELOADED IN ' + this.value"><option>Українська</option><option>English</option></select></footer>
+</body></html>

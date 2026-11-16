@@ -1,0 +1,8 @@
+# data/companies.yaml — companies whose own job boards the agent reads on every run (source id: watchlist).
+# Supported: greenhouse | lever | ashby | workable | recruitee | smartrecruiters — their public job-board APIs, no login.
+#   { name, ats, board }  board = the id in their jobs URL (job-boards.greenhouse.io/<board>, jobs.lever.co/<board>, …)
+#   { name }              looked up across all six on first use and remembered; "not found" is retried after 30 days
+#   enabled: false        keep the entry, skip it
+# Every job still goes through the same title prefilter, location check and triage as DOU/Djinni postings.
+# Seeded 2026-09-23 with boards verified live; companies found only through job-alert emails are looked up automatically.
+

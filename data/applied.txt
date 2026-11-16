@@ -1,0 +1,3 @@
+# Links you already applied to, one per line. The agent never re-applies to these, and sets aside new roles at the
+# same companies. For a link that doesn't name its company, add it after the link:
+#   https://djinni.co/jobs/123456-fullstack-engineer/   # Company Name

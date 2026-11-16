@@ -1,0 +1,84 @@
+{
+  "headline": "Full Stack Engineer · TypeScript / NestJS / Next.js / PostgreSQL",
+  "summary": "Full Stack Engineer with 3.5 years shipping production web products in TypeScript, React and Node.js (NestJS) on PostgreSQL — most recently a multi-market grocery marketplace, and before that a loyalty rewards game built from scratch and delivered through a partner loyalty platform to live users. I own features end to end, from data model and API through UI, tests and CI/CD, including real-time updates over WebSocket and Redis-backed shared state. Daily development with AI coding agents (Claude Code, Codex) under test-and-review guardrails.",
+  "entries": [
+    {
+      "engagement": "retail",
+      "bullets": [
+        {
+          "id": "retail.markets",
+          "text": null
+        },
+        {
+          "id": "retail.react19",
+          "text": null
+        }
+      ]
+    },
+    {
+      "engagement": "rewards",
+      "bullets": [
+        {
+          "id": "rw.game",
+          "text": null
+        },
+        {
+          "id": "rw.realtime",
+          "text": null
+        },
+        {
+          "id": "rw.atomic-reveal",
+          "text": null
+        },
+        {
+          "id": "rw.redis",
+          "text": null
+        }
+      ]
+    },
+    {
+      "engagement": "metrics",
+      "bullets": [
+        {
+          "id": "metrics.etl",
+          "text": null
+        },
+        {
+          "id": "metrics.search-messaging",
+          "text": null
+        }
+      ]
+    },
+    {
+      "engagement": "campus",
+      "bullets": [
+        {
+          "id": "campus.backend",
+          "text": null
+        }
+      ]
+    }
+  ],
+  "omit": [
+    "permits",
+    "stats"
+  ],
+  "skills_first": [
+    "NestJS",
+    "Next.js",
+    "PostgreSQL",
+    "Redis",
+    "WebSocket"
+  ],
+  "include_ai_section": false,
+  "cover_letter": {
+    "intro": "I'm Alex — a fullstack developer with 3.5 years of experience in TypeScript, React and NestJS, and I'd love to be considered for the Full-Stack Developer role at Acme iGaming.",
+    "snapshot": "Quick snapshot: a year of end-to-end work on a loyalty rewards game — a NestJS backend on hexagonal architecture with PostgreSQL, Redis and an event bus, real-time updates over WebSocket and verifiable prize draws, delivered through a partner loyalty platform into a live retail app. Today I ship features into the shared React + TypeScript frontend of a multi-market grocery marketplace, including its migration to React 19.",
+    "before": "Before that: a polyglot microservice platform for analytics and rankings, where I built a Python ETL service and worked with Elasticsearch, MongoDB and RabbitMQ — so joining an unfamiliar domain is most of my track record.",
+    "proof": "And the first thing I ever shipped — a student platform on NestJS and Prisma — is still in production, serving up to ~500 concurrent users."
+  },
+  "recruiter_message": {
+    "note": "Hi! I'm a fullstack engineer with 3.5 years in TypeScript, React and NestJS, interested in the Full-Stack Developer role at Acme iGaming. I built a loyalty rewards game from scratch on NestJS, PostgreSQL and Redis with real-time WebSocket updates, and now ship features on a grocery marketplace.",
+    "message": "Hi! I'm a fullstack engineer with 3.5 years in TypeScript, React and NestJS, and the Full-Stack Developer role at Acme iGaming is a close match. I spent a year building a loyalty rewards game from scratch: a NestJS backend on hexagonal architecture with PostgreSQL and Redis, real-time updates over WebSocket and verifiable prize draws, delivered to live users. Today I ship features into the React + TypeScript frontend of a multi-market grocery marketplace, including its migration to React 19. I own features from data model and API through UI, tests and CI/CD."
+  }
+}

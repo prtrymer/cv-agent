@@ -1,0 +1,185 @@
+# config/agent.yaml — runtime settings. Secrets live in .env, never here.
+mode: dry-run                   # dry-run: local packs + report only. live: sheet + submissions (next phase)
+timezone: Europe/Prague
+workingHours:
+  days: [1, 2, 3, 4, 5]
+  start: "09:00"
+  end: "17:30"
+  czechHolidays: true
+  extraDaysOff: []              # e.g. ["2026-12-31"]
+
+paths:
+  profile: data/profile.yaml
+  answers: data/answers.yaml
+  coverLetterBase: data/base/cover_letter.md
+  appliedSeed: data/applied.txt # links you already applied to; the live sheet replaces it next phase
+  prompts: prompts
+  css: templates/cv.css
+  out: out
+  logs: logs
+  db: data/state.db
+  watchlist: data/companies.yaml   # companies whose own job boards (Greenhouse, Lever, Ashby…) are read every run
+
+llm:
+  provider: openai-compatible   # "mock" = fixtures, no network (config/demo.yaml and the tests)
+  baseUrl: https://openrouter.ai/api/v1
+  apiKeyEnv: LLM_API_KEY
+  timeoutMs: 180000             # a slow host can take 100 s+ on a long plan; a timed-out call may still be billed
+  maxRetries: 4
+  maxRepairRounds: 1
+  toolChoice: forced            # forced | required | auto — relax if the provider rejects a forced tool_choice
+  circuitBreakerFailures: 5
+  pricing:                      # USD per 1M tokens, used when the provider doesn't report cost; null = tokens only.
+                                # One price for all stages, the dearest one: the cheaper models' cost reads high.
+    inputPerM: 0.435            # xiaomi/mimo-v2.6-pro on OpenRouter, 2026-10-21 — update if you change the model
+    cachedInputPerM: null       # null = billed at inputPerM (conservative)
+    outputPerM: 0.87
+  # Reasoning is off wherever a model allows it: live tests (2026-09-23) showed MiMo ignores reasoning limits (it once
+  # spent a whole 6,000-token call thinking and returned nothing), and with it off the same job took 26 s instead of
+  # 222 s at a lower cost with no loss in quality. The repair round is the safety net for a plan that fails a check.
+  # glm-5.3-flash can't turn reasoning off on any host ("Reasoning is mandatory"), so it runs at effort low.
+  # provider: several hosts serve each model and some are slow (6 tok/s seen) — prefer the fastest, but never above
+  # ~1.3x the model's list price (USD per 1M tokens), so a fast-but-expensive host can't sneak in. mimo-v2.6-flash on
+  # Makora and Io Net returned broken tool calls (2026-10-21), so it is pinned to the four hosts that worked.
+  # fallbacks: tried in order when a model is rate-limited or down after its retries, or its output is still invalid
+  # after the repair rounds; a 429 moves to the next one for the rest of the run. Every list mixes vendors, so one vendor's outage can't take out a stage.
+  # Models per stage from a benchmark on real data (2026-10-21; 60 vacancies, 5 CVs, 10 alert emails, 6 forms):
+  #   triage  deepseek-v4.1-flash — 2 s vs 8 s on mimo-v2.6-pro; none of the four separated good from poor matches
+  #           much better than chance, so speed and recall decide
+  #   tailor  glm-5.3-flash — 4/5 plans clean (same as mimo-v2.6-pro) in 14 s instead of 63 s; letters read as well.
+  #           deepseek had 1/5 clean, mimo-v2.6-flash 2 schema failures
+  #   extract glm-5.3-flash — all 50 jobs, no repair round; the others differed only cosmetically
+  #   answer  mimo-v2.6-pro — deepseek filled "Desired Salary" from a currency option instead of asking you
+  # v2.5 was retired the same day: one usable host left per model (GMICloud, which answered 429 for minutes).
+  stages:
+    triage:
+      { model: deepseek/deepseek-v4.1-flash, prompt: triage/v13, maxTokens: 1500, temperature: 0.1,
+        extraBody: &deepseek { reasoning: { enabled: false }, provider: { ignore: [AtlasCloud], sort: throughput, max_price: { prompt: 0.2, completion: 0.8 } } },
+        fallbacks: [
+          { model: xiaomi/mimo-v2.6-pro, extraBody: &pro { reasoning: { enabled: false }, provider: { ignore: [AtlasCloud], sort: throughput, max_price: { prompt: 0.6, completion: 1.2 } } } },
+          { model: z-ai/glm-5.3-flash, extraBody: &glm { reasoning: { effort: low }, provider: { ignore: [AtlasCloud, Makora], sort: throughput, max_price: { prompt: 0.2, completion: 0.6 } } } },
+        ] }
+    # Together broke glm's tool calls on 2026-11-06 (12 of 13 tailor calls, after 0 of 71 before; OpenInference did the
+    # same on 2026-11-02): <arg_key> tags leak into the JSON and cut fields short. Only the large tailor plan is affected,
+    # so extract stays on *glm, where Together has answered 137 of 137.
+    tailor: { model: z-ai/glm-5.3-flash, prompt: tailor/v4, maxTokens: 8000, temperature: 0.3,
+      extraBody: { reasoning: { effort: low }, provider: { ignore: [AtlasCloud, Makora, Together, OpenInference], sort: throughput, max_price: { prompt: 0.2, completion: 0.6 } } },
+      fallbacks: [{ model: xiaomi/mimo-v2.6-pro, extraBody: *pro }] }
+    extract:
+      { model: z-ai/glm-5.3-flash, prompt: extract/v2, maxTokens: 6000, temperature: 0, extraBody: *glm,
+        fallbacks: [
+          { model: deepseek/deepseek-v4.1-flash, extraBody: *deepseek },
+          { model: xiaomi/mimo-v2.6-flash, extraBody: { reasoning: { enabled: false }, provider: { only: [Xiaomi, DeepInfra, Relace, Novita], sort: throughput, max_price: { prompt: 0.2, completion: 0.4 } } } },
+        ] }
+    answer: { model: xiaomi/mimo-v2.6-pro, prompt: answer/v1, maxTokens: 3000, temperature: 0.2, extraBody: *pro, fallbacks: [{ model: z-ai/glm-5.3-flash, extraBody: *glm }] }
+  budget: { dailyUsd: 1.0, dailyTokens: 5000000 }   # dollars are the real cap: a run costs cents (benchmark: ~$0.0004 per screening, ~$0.003 per CV); tokens only guard a provider that reports no cost
+
+cache:
+  redisUrlEnv: REDIS_URL        # unset or unreachable -> SQLite fallback, logged once
+  ttlDays: { triage: 30, tailor: 14, extract: 30, answer: 30 }
+
+pipeline:
+  maxTriagePerRun: 40
+  maxTailorPerRun: 8
+  approveBeforeTailor: true     # screening only shortlists; you pick which get a CV (npm run review, or the dashboard)
+  concurrency: 2
+  applyThreshold: 50            # score at or above → shortlisted for your call; below → rejected. No borderline (2026-10-19)
+  vacancyCharLimit: 6000
+  maxAttempts: 3
+  maxGapMonths: 2
+  yearsOk: 5                    # roles asking up to 5 years (total or per technology) are fine
+  minSeniority: junior          # junior | middle | senior. Titles below it are dropped before screening, and screening's
+                                # verdict below it is a reject. Trainee / intern titles are always dropped (junior since 2026-11-16)
+  maxAgeDays: 14                # older postings are skipped before any model call; feeds reach back ~30 days
+  roleFamilies: [fullstack, backend, frontend, java, java-fullstack, devops, fde]   # positioning per family lives in data/profile.yaml
+  locationAskCompanies: []      # never rejected on location: employers you'll ask about working from abroad
+  separateEmployers: []         # e.g. [["Some Bank", "Some Bank a.s."]]: different employers, same-looking name
+  # The pitch to a recruiter, written with every CV (2026-11-15). note: LinkedIn connection request — 300 characters,
+  # 200 on a free account. message: a direct message. skipEngagements (engagement ids from profile.yaml) are never
+  # mentioned: product experience only.
+  recruiterMessage: { noteMaxChars: 300, messageMaxChars: 700, skipEngagements: [] }
+  repostAfterDays: 30           # a role you applied to 30+ days ago and posted again is screened again, not set aside (2026-11-10)
+
+prefilter:                      # regexes, case-insensitive; free, runs before any LLM call
+  titleInclude: ["forward[- ]deploy", "\\bfde\\b", devops, "\\bsre\\b", "site reliability", typescript, javascript, node, nest, react, next, angular, "full[- ]?stack", "front[- ]?end", "back[- ]?end", "\\bjava\\b", "\\bweb\\b", "software engineer", developer, engineer, розробник, програміст]
+  titleExclude: ["\\bqa\\b", tester, "\\bdesigner", "data scientist", "machine learning", android, "\\bios\\b", "\\.net", "c#", "\\bphp", golang, "\\bgo\\b", ruby, flutter, unity, "c\\+\\+", embedded, "\\bsales", recruiter, marketing, "\\bseo\\b", "\\bsupport\\b", "project manager", "product manager", principal, "head of", director, "\\bcto\\b", "\\bvp\\b"]
+  maxYearsRequired: 6
+  djinni:                       # Djinni hides the reply form from profiles below these: checked on the job page, free
+    experienceYears: 3          # what your Djinni profile says
+    countries: [europe, "\\beu\\b", czech, world, anywhere]   # "Countries where we consider candidates" must match one; "Ukraine" alone doesn't
+
+sources:                        # open each URL in a browser once before the first real run
+  - { id: dou-node, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js" }
+  - { id: dou-frontend, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End" }
+  - { id: dou-java, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java" }
+  # A DOU feed shows only its latest 25: narrower feeds (by experience, remote, search) reach ~2.4x more (73 → 172, 2026-09-25).
+  - { id: dou-node-1-3, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js&exp=1-3" }
+  - { id: dou-node-3-5, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js&exp=3-5" }
+  - { id: dou-node-remote, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Node.js&remote" }
+  - { id: dou-frontend-1-3, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End&exp=1-3" }
+  - { id: dou-frontend-3-5, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End&exp=3-5" }
+  - { id: dou-frontend-remote, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End&remote" }
+  - { id: dou-java-1-3, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java&exp=1-3" }
+  - { id: dou-java-3-5, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java&exp=3-5" }
+  - { id: dou-java-remote, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Java&remote" }
+  - { id: dou-devops, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=DevOps" }
+  - { id: dou-devops-remote, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=DevOps&remote" }
+  - { id: dou-sre, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=SRE" }
+  - { id: dou-fde, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=forward%20deployed" }   # FDE roles (2026-11-12)
+  - { id: dou-fde-short, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=FDE" }
+  # DOU's search is literal: "forward deployed" misses "Forward-Deployed" and "Forward Deployment" titles (2026-11-13).
+  - { id: dou-fde-hyphen, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=forward-deployed" }
+  - { id: dou-fde-deployment, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=forward%20deployment" }
+  # Scala (2026-11-13): only postings that let Java engineers switch pass screening (triage/v13); the rest are rejected there.
+  - { id: dou-scala, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?category=Scala" }
+  - { id: dou-fullstack, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=fullstack" }
+  - { id: dou-typescript, kind: dou, url: "https://jobs.dou.ua/vacancies/feeds/?search=typescript" }
+  - { id: djinni-js, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=JavaScript" }
+  - { id: djinni-node, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Node.js" }
+  - { id: djinni-fullstack, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Fullstack" }
+  - { id: djinni-java, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Java" }
+  - { id: djinni-devops, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=DevOps" }
+  - { id: djinni-react, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=React.js" }
+  - { id: djinni-angular, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Angular" }
+  - { id: djinni-scala, kind: djinni, url: "https://djinni.co/jobs/rss/?primary_keyword=Scala" }
+  # Djinni has no FDE category: a text search does it. The parameter is all_keywords (underscore); "keywords" and
+  # "all-keywords" are ignored and silently return every job (checked 2026-11-13: 15 FDE roles, 3 for "FDE").
+  - { id: djinni-fde, kind: djinni, url: "https://djinni.co/jobs/rss/?all_keywords=forward+deployed" }
+  - { id: djinni-fde-short, kind: djinni, url: "https://djinni.co/jobs/rss/?all_keywords=FDE" }
+  - { id: wwr-fullstack, kind: rss, url: "https://weworkremotely.com/categories/remote-full-stack-programming-jobs.rss" }
+  - { id: wwr-backend, kind: rss, url: "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss" }
+  # Djinni keywords must match its list exactly ("React.js", not "React"); an unknown one silently returns every job.
+
+alerts:                         # LinkedIn / Glassdoor job-alert emails → the company's own posting (see README)
+  enabled: true                 # IMAP login to the agent Gmail verified 2026-09-23
+  host: imap.gmail.com
+  port: 993
+  mailbox: INBOX                # the agent's own Gmail, fed by a forwarding filter in your main account
+  lookbackDays: 7
+  senders: [jobs-noreply@linkedin.com, jobalerts-noreply@linkedin.com, noreply@glassdoor.com, donotreply@match.indeed.com, pomuzeme@jobs.cz, magic@djinni.co, robota.ua]
+  # A bare domain matches any address there (Gmail's IMAP search): robota.ua's alert address wasn't known.
+  # Alert jobs are links only (2026-10-19): listed under their email, never looked up or screened. publicPages is now
+  # used only by `add <linkedin|jobs.cz link>`, which reads that one posting logged out.
+  publicPages: { enabled: true, maxPerRun: 20, minIntervalMs: 10000 }   # LinkedIn gave 429 at ~17 requests 4 s apart
+
+apply:                          # `npm run apply` — fills company application forms; you always press Submit
+  mode: assisted                # assisted: visible browser, you review and submit · simulate: headless, screenshots only
+  browserProfile: data/browser-profile   # the agent's own Chromium profile (cookies for sites you log in to), not your Chrome
+  waitMinutes: 30               # how long it watches for the confirmation page after filling
+  maxFreeTextChars: 1500
+  # Boards behind a bot check whose "Apply" needs an account: never opened in the agent's window (see README → Applying)
+  protectedBoards: [weworkremotely.com, linkedin.com, glassdoor.com, indeed.com, robota.ua, rabota.ua]   # LinkedIn & co: applying needs your account
+
+ats:
+  probeTtlDays: 30               # a company with no public board found is looked up again after this
+
+http:
+  userAgent: "cv-agent/0.1 (personal job-search assistant)"
+  timeoutMs: 20000
+  minIntervalMsPerHost: 3000
+  maxBytes: 3000000
+
+render:
+  engine: playwright            # playwright (Chromium from `npx playwright install chromium`) | wkhtmltopdf | chromium | none
+  binary: null                  # wkhtmltopdf/chromium only; defaults to the engine name on PATH
+  maxPages: 2

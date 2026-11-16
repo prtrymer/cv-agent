@@ -1,0 +1,22 @@
+{
+  "id": 11000001,
+  "name": "Java  developer (middle+)",
+  "notebookId": 500001,
+  "companyName": "Nowhere Processing LLC",
+  "contactPerson": "",
+  "isActive": true,
+  "salary": 0,
+  "salaryFrom": 80000,
+  "salaryTo": 110000,
+  "salaryComment": "",
+  "description": "<html><head></head><body><p><strong>Основні задачі:</strong></p><ul><li>Розробляти backend-сервіси на Java 17+ і Spring Boot.</li><li>Працювати з PostgreSQL та Kafka.</li></ul><p><strong>Обов'язкові вимоги:</strong></p><ul><li>Від 3 років комерційного досвіду Java backend-розробки.</li></ul></body></html>",
+  "branchName": "IT",
+  "cityId": 1,
+  "cityName": "Киев",
+  "clusters": [
+    { "id": 52, "name": "Вид занятости", "groups": [{ "id": 7140, "name": "Полная занятость" }, { "id": 2004, "name": "Удаленная работа" }] },
+    { "id": 32, "name": "Язык программирования", "groups": [{ "id": 378, "name": "Java" }, { "id": 415, "name": "SQL" }] },
+    { "id": 174, "name": "Опыт работы", "groups": [] }
+  ],
+  "badges": [{ "id": 1, "name": "Курсы иностранного языка" }]
+}

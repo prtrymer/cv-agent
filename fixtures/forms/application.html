@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- Test fixture shaped like an ATS application form (Greenhouse-style labels, fieldset radios, EEO selects, hidden file inputs). -->
+<html lang="en"><head><meta charset="utf-8"><title>Apply — Java Developer at Acme Software</title>
+<style>
+  body { font-family: sans-serif; max-width: 720px; margin: 24px auto; }
+  .field { margin: 14px 0; } label { display: block; font-weight: 600; }
+  .upload input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  [role=listbox] { border: 1px solid #ccc; margin: 0; padding: 0; list-style: none; }
+  [role=listbox][hidden] { display: none; }
+</style></head>
+<body>
+<h1>Java Developer</h1>
+<p>Thank you for your interest in Acme Software! Please fill in the form below.</p>
+<form id="application" onsubmit="event.preventDefault(); document.body.innerHTML = '<h1>Thank you for applying!</h1>'; history.pushState({}, '', '#confirmation');">
+  <div class="field"><label for="first_name">First Name *</label><input id="first_name" name="first_name" required></div>
+  <div class="field"><label for="last_name">Last Name *</label><input id="last_name" name="last_name" required></div>
+  <div class="field"><label for="email">Email *</label><input id="email" type="email" name="email" required></div>
+  <div class="field"><label for="phone">Phone</label><input id="phone" type="tel" name="phone"></div>
+  <div class="field upload"><div class="label">Resume/CV *</div><button type="button">Attach</button><input type="file" name="resume" accept=".pdf,.doc,.docx" required aria-required="true"></div>
+  <div class="field upload"><div class="label">Cover Letter</div><button type="button">Attach</button><input type="file" name="cover_letter" accept=".pdf,.doc,.docx"></div>
+  <div class="field"><label for="linkedin">LinkedIn Profile</label><input id="linkedin" name="urls[LinkedIn]"></div>
+  <div class="field"><label for="location">Location (City) *</label>
+    <input id="location" role="combobox" aria-autocomplete="list" aria-controls="loc-list" autocomplete="off" required>
+    <ul id="loc-list" role="listbox" hidden>
+      <li role="option">Olomouc, Czech Republic</li><li role="option">Prague, Czech Republic</li><li role="option">Brno, Czech Republic</li>
+    </ul></div>
+  <fieldset class="field"><legend>Are you legally authorized to work in Czechia? *</legend>
+    <label><input type="radio" name="auth" value="1" required> Yes</label><label><input type="radio" name="auth" value="0"> No</label></fieldset>
+  <fieldset class="field"><legend>Will you now or in the future require visa sponsorship? *</legend>
+    <label><input type="radio" name="sponsor" value="1" required> Yes</label><label><input type="radio" name="sponsor" value="0"> No</label></fieldset>
+  <div class="field"><label for="java_years">How many years of commercial experience do you have with Java? *</label>
+    <select id="java_years" name="java_years" required><option value="">Please select</option><option>Less than 1</option><option>1-2</option><option>3-5</option><option>5+</option></select></div>
+  <div class="field"><label for="hear">How did you hear about this job?</label>
+    <select id="hear" name="hear"><option value="">Select...</option><option>LinkedIn</option><option>Glassdoor</option><option>Company website</option><option>Referral</option></select></div>
+  <div class="field"><label for="salary">What are your salary expectations (gross, monthly)? *</label><input id="salary" name="salary" required></div>
+  <div class="field"><label for="why">Why do you want to work at Acme Software? *</label><textarea id="why" name="why" required></textarea></div>
+  <div class="field"><label for="gender">Gender</label>
+    <select id="gender" name="gender"><option value="">Select...</option><option>Male</option><option>Female</option><option>Non-binary</option><option>Decline to self-identify</option></select></div>
+  <div class="field"><label><input type="checkbox" name="gdpr" required> I agree to the processing of my personal data according to the Privacy Policy *</label></div>
+  <div class="field"><label><input type="checkbox" name="pool" checked> Keep my data in your talent pool for future opportunities</label></div>
+  <button type="submit">Submit application</button>
+</form>
+<script>
+  const input = document.getElementById('location'), list = document.getElementById('loc-list');
+  input.addEventListener('focus', () => { list.hidden = false; });
+  input.addEventListener('input', () => { list.hidden = false; for (const li of list.children) li.hidden = !li.textContent.toLowerCase().includes(input.value.toLowerCase()); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Escape') list.hidden = true; });
+  for (const li of list.children) li.addEventListener('click', () => { input.value = li.textContent; list.hidden = true; });
+</script>
+</body></html>

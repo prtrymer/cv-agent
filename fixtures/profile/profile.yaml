@@ -1,0 +1,375 @@
+# fixtures/profile/profile.yaml — a FICTIONAL candidate for the tests and `npm run demo`.
+# Every name, company, product and link here is invented. Your real profile lives in data/profile.yaml (gitignored);
+# it has the same shape as this file.
+#
+# The fact base and bullet bank: the ONLY source of claims. Per vacancy the model may select, order and lightly
+# rephrase what is here; it may never add an employer, date, title, technology, number or outcome that is not here.
+# Dates: YYYY-MM, YYYY (month unknown) or present.
+
+version: 1
+
+person:
+  name: Alex Doe
+  headline: Full Stack Engineer · TypeScript / React / Node.js / PostgreSQL
+  location: Brno, Czech Republic
+  links:
+    github: github.com/alex-doe-example
+    live_projects: [campus-advisor.example]
+  career_start: 2023-03            # Campus Advisor; total experience counts from here (3.5 yrs in Sept 2026)
+  tech_years: { Java: 3 }          # own figure where engagement dates undercount it
+
+positioning:
+  default: Fullstack TypeScript / Node.js, Java secondary
+  java_pivot: only for Java-specific vacancies
+  never_in_headline: [Senior, Lead, Principal, Staff, Head]
+  families:
+    fullstack:
+      headline: Full Stack Engineer
+      angle: fullstack TypeScript / Node.js product engineer owning features from data model and API through UI, tests and CI/CD
+      titles: [Full Stack Engineer, Full Stack Engineer (Frontend focus)]
+      exclude: [Java, Spring, Hibernate, JPA, Maven, Lombok, MapStruct, Thymeleaf, JSoup, JUnit, Mockito, AssertJ, Bean Validation, Kotlin]
+    backend:
+      headline: Backend Engineer
+      angle: Node.js / NestJS backend engineer — APIs, data models, PostgreSQL and Redis, real-time and event-driven services
+      titles: [Backend Engineer, Backend Developer, Full Stack Engineer]
+      exclude: [Java, Spring, Hibernate, JPA, Maven, Lombok, MapStruct, Thymeleaf, JSoup, JUnit, Mockito, AssertJ, Bean Validation, Kotlin]
+    frontend:
+      headline: Frontend Engineer
+      angle: React / TypeScript frontend engineer on large production codebases — the React 19 migration, real-time UI, design systems
+      titles: [Frontend Engineer, Full Stack Engineer (Frontend focus), Full Stack Engineer]
+      exclude: [Java, Spring, Hibernate, JPA, Maven, Lombok, MapStruct, Thymeleaf, JSoup, JUnit, Mockito, AssertJ, Bean Validation, Kotlin]
+    java:
+      headline: Java Developer
+      angle: Java / Spring Boot backend developer — Spring MVC, Data JPA / Hibernate, Spring Security, JUnit, Mockito and Testcontainers
+      titles: [Java Developer, Backend Engineer, Backend Developer, Full Stack Engineer]
+      only: [permits, stats]
+    java-fullstack:
+      headline: Full Stack Engineer
+      angle: Java / Spring backends with React / TypeScript frontends, owned end to end
+      titles: [Full Stack Engineer, Java Developer, Backend Engineer]
+    devops:
+      headline: Software Engineer
+      angle: product engineer who owns the pipeline and the infrastructure the code runs on
+      titles: [Full Stack Engineer, Backend Engineer, Software Engineer]
+      exclude: [Java, Spring, Hibernate, JPA, Maven, Lombok, MapStruct, Thymeleaf, JSoup, JUnit, Mockito, AssertJ, Bean Validation, Kotlin]
+    fde:
+      headline: Full Stack Engineer
+      angle: engineer who joins an unfamiliar production codebase and domain and ships inside it
+      titles: [Full Stack Engineer, Software Engineer, Backend Engineer]
+      exclude: [Java, Spring, Hibernate, JPA, Maven, Lombok, MapStruct, Thymeleaf, JSoup, JUnit, Mockito, AssertJ, Bean Validation, Kotlin]
+
+summary:
+  master: >-
+    Full Stack Engineer with 3.5 years shipping production web products in TypeScript, React and Node.js (NestJS)
+    on PostgreSQL — most recently a multi-market grocery marketplace, and before that a loyalty rewards game built
+    from scratch and delivered through a partner loyalty platform to live users. I own features end to end, from data
+    model and API through UI, tests and CI/CD, and I am the engineer who joins an existing production codebase, learns
+    the domain and starts shipping inside it. Backed by Java/Spring, Elixir and a regulated-sector track record. Daily
+    development with AI coding agents (Claude Code, Codex) under test-and-review guardrails.
+
+groups:
+  - id: agency
+    name: Brightstaff
+    title: Full Stack Engineer, client placements
+    start: 2023-10
+    end: present
+    blurb: >-
+      Brightstaff places engineers directly inside client teams. Several engagements across different domains, each
+      one beginning with an unfamiliar production codebase and a team that needed delivery rather than onboarding.
+
+engagements:
+  - id: retail
+    group: agency
+    company: Northwind Market
+    titles: [Full Stack Engineer (Frontend focus), Frontend Engineer]
+    tagline: TypeScript / React
+    keywords: [marketplace, grocery, React 19]
+    start: 2026-05
+    end: present
+    context: >-
+      Online grocery marketplace serving shoppers in several countries, each market with its own rules.
+    stack: [TypeScript, React, React 19, Node.js, CSS Modules, shared component library, Claude Code, Codex, Bitbucket,
+            CI pipelines, staged releases, OpenAI API, Azure App Service, Azure DevOps, Azure Storage, Azure Functions,
+            Figma, Swagger, Postman]
+    bullets:
+      - id: retail.markets
+        text: "One frontend has to behave correctly under every market's rules — ship product features into the shared React + TypeScript codebase alongside several product squads, holding each change across market-specific configuration."
+        tags: [react, typescript, regulated]
+      - id: retail.process
+        text: "Changes to a shared codebase have to be safe for engineers who didn't write them — work through code review, staged rollout and cross-squad coordination rather than solo merges."
+        tags: [process, teamwork]
+      - id: retail.react19
+        text: "A major version upgrade has to land without pausing a live, high-traffic product — contribute to the migration to React 19, working through its breaking changes across a large shared frontend in continuous production use."
+        tags: [react, migration]
+      - id: retail.css-modules
+        text: "The previous styling approach is being retired as part of that migration — rewrite the styling layer into CSS Modules component by component while holding visual parity in the live product."
+        tags: [css, migration]
+      - id: retail.agents
+        text: "The repetitive part of the migration is too large to hand-edit — run it through Claude Code and Codex as scoped per-component tasks, with every generated change verified against the test suite and reviewed before it enters the shared branch."
+        tags: [ai-agents, migration, testing]
+      - id: retail.shared-ui
+        text: "Other squads build on the shared UI components — extend and maintain them with backwards-compatible changes, so work done for one surface never breaks another."
+        tags: [react, design-system]
+      - id: retail.openai
+        text: "An internal operations tool needed LLM capabilities — integrated the OpenAI API into it."
+        tags: [ai, llm, integration]
+
+  - id: rewards
+    group: agency
+    company: Questify
+    titles: [Full Stack Engineer, Backend Engineer, Frontend Engineer]
+    tagline: TypeScript / React / NestJS
+    keywords: [rewards game, loyalty, gamification, verifiable draw]
+    start: 2025-05
+    end: 2026-04
+    context: >-
+      Year-long engagement with full-stack ownership across backend services and the web client. Headline deliverable:
+      a loyalty rewards game built from the ground up and delivered through a partner loyalty platform into a live
+      retail app.
+    stack: [TypeScript, Node.js, NestJS, React, Next.js, Angular, RxJS, Angular Material, Zustand, TanStack Query,
+            TanStack Table, React Hook Form, Zod, Redux, RTK, React Native, WebSocket, Redis, PostgreSQL, TypeORM,
+            Tailwind, styled-components, shadcn/ui, SCSS, Vite, Webpack, Jest, GitHub Actions, hexagonal architecture,
+            event bus, dependency injection, DDD, CQRS, JWT, RBAC, CSRF, XSS, Mailgun, AWS, AWS S3, AWS Lambda, AWS EKS,
+            Kubernetes, Terraform, GCP, GCP Cloud Storage, GCP Compute Engine, GCP Cloud Functions, SSR, SSG, ISR, SEO,
+            Storyblok, Vercel, Docker, Figma, Swagger, Postman, payment integrations]
+    bullets:
+      - id: rw.game
+        text: "A retailer needed a rewards game its users could reach through a loyalty layer — built it from scratch and integrated it into a partner loyalty platform and on into a live retail app, working on both ends of that chain."
+        tags: [fullstack, gaming, integration]
+      - id: rw.multi-open
+        text: "The client let users claim only one reward per action — implemented multi-claiming so a user can open several in a single action."
+        tags: [frontend, gaming]
+      - id: rw.verifiable
+        text: "Prize draws had to be verifiable — implemented verification that hands the user the server secret and timestamp after each draw, so the random number behind their prize can be recomputed independently."
+        tags: [backend, regulated, gaming]
+      - id: rw.atomic-reveal
+        text: "Multi-claiming put several reveals in flight at once — handled secret disclosure inside atomic transactions, so each secret was revealed exactly once and stayed consistent under concurrent claims and retries."
+        tags: [backend, concurrency, postgres]
+      - id: rw.hexagonal
+        text: "The game had to evolve without touching its business rules — structured it on hexagonal architecture with an event bus between modules, keeping domain logic behind ports."
+        tags: [architecture, backend, event-driven]
+      - id: rw.email-assets
+        text: "New users needed transactional email and the game needed durable storage for its imagery — integrated Mailgun behind its own adapter and built an AWS S3 asset module wired into the same event bus."
+        tags: [backend, aws, integration]
+      - id: rw.security-incident
+        text: "A stolen API token and a logic flaw allowed multiple wins on a single reward — diagnosed the production incident, fixed the root cause and hardened JWT token handling alongside CSRF protection and XSS input sanitization."
+        tags: [security, incident, frontend, backend]
+      - id: rw.realtime
+        text: "Clients had to poll for state changes — delivered real-time updates over WebSocket, including a live notifications and events feed, pushing changes to connected clients instead."
+        tags: [realtime, websocket, fullstack]
+      - id: rw.redis
+        text: "Hot-path reads were landing on the primary database — used Redis for caching and cross-instance shared state to keep them off it."
+        tags: [backend, performance, redis]
+      - id: rw.nest-di
+        text: "The domain layer had to be testable without standing up infrastructure — built NestJS backend services around dependency injection, so domain logic stayed unit-testable in isolation."
+        tags: [backend, nestjs, testing]
+      - id: rw.data-layer
+        text: "Server data needed one predictable home in the web client — owned the frontend data layer with TanStack Query and Zustand."
+        tags: [frontend, react, state]
+      - id: rw.forms-tables
+        text: "Data-heavy screens needed dependable forms and tables — built them with React Hook Form, Zod validation and TanStack Table."
+        tags: [frontend, react, forms]
+      - id: rw.styling
+        text: "The styling layer carried a mixed history — maintained a consistent component API across Tailwind, styled-components and SCSS."
+        tags: [frontend, css]
+      - id: rw.pipeline
+        text: "Every pull request needed gating before review — maintained the build and test pipeline end to end, from Vite and Webpack configuration to Jest suites and GitHub Actions workflows."
+        tags: [ci-cd, testing, tooling]
+      - id: rw.admin-panel
+        text: "The game needed a back office — built an Angular admin panel with RxJS and Angular Material over TypeORM and PostgreSQL, backed by GCP Compute Engine VMs, Cloud Functions and Cloud Storage."
+        tags: [angular, frontend, gcp]
+      - id: rw.ddd-postgres
+        text: "Backend logic and query load grew with the product — applied DDD/CQRS patterns on the NestJS backend and optimized PostgreSQL with partitioned tables and EXPLAIN-driven query analysis."
+        tags: [backend, postgres, architecture, performance]
+      - id: rw.infra
+        text: "Infrastructure had to be reproducible — worked on Terraform-managed AWS infrastructure with AWS Lambda functions and workloads on AWS EKS (Kubernetes)."
+        tags: [devops, aws, kubernetes]
+      - id: rw.nextjs-seo
+        text: "Public pages needed to rank and load fast — built them with Next.js using SSR, SSG and ISR plus technical SEO, with content from Storyblok CMS and deployment on Vercel."
+        tags: [frontend, nextjs, seo]
+
+  - id: permits
+    group: agency
+    company: Municipal permits procurement
+    titles: [Full Stack Engineer, Backend Engineer, Java Developer]
+    tagline: Java / TypeScript
+    keywords: [procurement, permits, tender, municipal]
+    start: 2024-05
+    end: 2026
+    omit_ok: true
+    context: >-
+      Bid delivery for a public procurement — a building-permit application system — built as a Java/Spring backend
+      with a TypeScript frontend on prescribed public-sector libraries. The bid was won and the system went to production.
+    stack: [Java, Spring, TypeScript, React, REST, PostgreSQL, Redis, Podman, third-party integrations,
+            public-sector UI component library, document-validation library]
+    bullets:
+      - id: pm.application-validation
+        text: "Permit applications had to satisfy the tender specification's strict rules — built backend validation in Java/Spring for every application field and the permit categories an applicant can request."
+        tags: [java, backend, regulated, validation]
+      - id: pm.prescribed-stack
+        text: "The procurement prescribed its own stack — delivered against the mandated UI component library and integrated the document-validation library into the backend flow."
+        tags: [java, regulated, integration]
+      - id: pm.podman
+        text: "The environment had to come up reproducibly on a clean machine — containerised the whole stack with Podman and wrote the scripts wiring the frontend to the backend and the database."
+        tags: [devops, containers]
+      - id: pm.api-reporting
+        text: "The system needed reporting and outside integrations — designed REST APIs and business logic over a PostgreSQL and Redis data layer, built third-party integrations and reporting dashboards."
+        tags: [backend, java, api, reporting]
+
+  - id: metrics
+    group: agency
+    company: Metricly
+    titles: [Full Stack Engineer, Backend Engineer, Software Engineer]
+    tagline: Elixir / TypeScript ({framework}) / Python
+    keywords: [backoffice, rankings, analytics]
+    start: 2023-10
+    end: 2025-04
+    context: >-
+      Microservice platform split across Elixir, TypeScript ({framework}) and Python services, powering backoffice and
+      analytics tooling that ranked content performance across partner sites.
+    stack: [Elixir, Phoenix, Ecto, OTP, TypeScript, React, Node.js, Python, ETL, GraphQL, REST, gRPC, Protobuf,
+            Elasticsearch, MongoDB, RabbitMQ, DynamoDB, AWS, AWS Lambda, Docker, Linux]
+    # {framework} becomes the options the posting names (in this order), else the default.
+    frameworks:
+      options: [NestJS, Express.js, Koa, Hapi, AdonisJS, Hono]
+      default: [Express.js]
+    bullets:
+      - id: metrics.etl
+        text: "Performance data had to be processed before teams could use it — built a Python data-processing/ETL microservice whose transformations were later exposed as BackOffice dashboards."
+        tags: [python, backend, data, etl]
+      - id: metrics.grpc
+        text: "That data had to reach consumer services on different partner sites — distributed it over gRPC using the platform's established Protobuf contracts."
+        tags: [backend, grpc, microservices]
+      - id: metrics.vertical
+        text: "Features spanned both sides of an Elixir/TypeScript split — delivered full vertical slices across multiple repositories, from Ecto database migrations and Protobuf contract updates to regenerated gRPC stubs and the interface on top."
+        tags: [fullstack, elixir, typescript, microservices]
+      - id: metrics.backoffice
+        text: "Internal teams had to request platform data from someone else — built backoffice and analytics screens, giving them direct visibility."
+        tags: [frontend, dashboards]
+      - id: metrics.search-messaging
+        text: "Services needed search, flexible per-user data and asynchronous messaging — worked with Elasticsearch search and aggregation, MongoDB and RabbitMQ behind GraphQL and REST APIs on TypeScript services ({framework}), containerised with Docker on AWS."
+        tags: [backend, search, messaging, nosql]
+
+  - id: stats
+    group: agency
+    company: Sports statistics product
+    titles: [Backend Engineer, Java Developer]
+    tagline: Java
+    keywords: [cycling, race, statistics]
+    start: 2023-10
+    end: 2025
+    omit_ok: true
+    context: >-
+      Commercial Java product surfacing cycling race statistics and results; none of the data it was built on was
+      available through an open API.
+    stack: [Java, JSoup, JUnit, Mockito, Testcontainers, TDD, Angular, React]
+    bullets:
+      - id: stats.sources
+        text: "None of the product's data was available through an open API — owned sourcing end to end, researching five separate race sources with no shared schema, format or identifiers."
+        tags: [data, java, ownership]
+      - id: stats.scraper
+        text: "Several sources exposed no endpoint and changed markup without notice — built a JSoup scraper with schema reconciliation, deduplication and scheduled ingestion into one unified dataset."
+        tags: [java, data, scraping]
+      - id: stats.tests
+        text: "Failures needed to surface before release, not in staging — built the test layer test-first with JUnit, Mockito and Testcontainers, running integration tests against real containerised dependencies."
+        tags: [java, testing, tdd]
+      - id: stats.dashboard
+        text: "The unified dataset needed a way to be explored — built an Angular dashboard over it."
+        tags: [angular, frontend]
+
+  - id: campus
+    company: Example University Student Union
+    product: Campus Advisor (campus-advisor.example)
+    titles: [Backend Engineer, Backend Developer]
+    tagline: TypeScript / NestJS
+    keywords: [student, lecturer, campus advisor]
+    start: 2023-03
+    end: 2024-01
+    context: >-
+      Campus Advisor — a student-facing platform for lecturer search and ratings, subject management and schedules;
+      a monolith inside a monorepo, still in production and serving up to roughly 500 concurrent students.
+    stack: [TypeScript, React, Node.js, NestJS, Prisma, PostgreSQL, monorepo, database indexing, SQL views, JWT, RBAC, Google OAuth,
+            Azure, MUI, Figma, Swagger, Postman]
+    bullets:
+      - id: campus.backend
+        text: "The university needed a student platform for lecturer ratings, subjects and schedules — built its backend from a blank repo in NestJS with Prisma over PostgreSQL; it went live and still serves up to ~500 concurrent students."
+        tags: [backend, nestjs, ownership]
+      - id: campus.dashboards
+        text: "Lecturer dashboards had to stay responsive as rating data grew — moved aggregation off the request path with database indexes and SQL views."
+        tags: [backend, postgres, performance]
+      - id: campus.schema
+        text: "Requirements changed mid-project — designed the schema and API for lecturers, subjects, ratings and schedules and owned the migration path."
+        tags: [backend, api, data-modeling]
+      - id: campus.auth
+        text: "Students needed secure sign-in with role-based permissions — implemented JWT/RBAC authentication with Google OAuth sign-in, with the platform deployed on Azure."
+        tags: [backend, auth, security, azure]
+
+education:
+  degree: Bachelor of Computer Science
+  school: Example Technical University
+  start: 2022
+  end: 2026
+  projects:
+    - id: diploma
+      title: Diploma project — event-driven forecasting system
+      stack: [Rust, Tokio, Kafka, ScyllaDB, React, hexagonal architecture, machine learning]
+      academic_only: [Rust, Tokio, Kafka, ScyllaDB]   # never claimed inside a commercial engagement
+      text: >-
+        A forecasting engine written in Rust on Tokio, with Kafka event replay, ScyllaDB storage and a React frontend,
+        structured on hexagonal architecture around a machine-learning model.
+    - id: java-personal
+      title: Personal Java projects
+      stack: [Java, Spring Boot 3, Spring MVC, Spring Data JPA, Hibernate, Spring Security, JWT, Bean Validation,
+              Thymeleaf, springdoc-openapi, Swagger, MapStruct, Lombok, Maven, Testcontainers, PostgreSQL, Bootstrap]
+      text: >-
+        Spring Boot 3 services on PostgreSQL: a REST API with JWT authentication on a custom Spring Security filter
+        chain, Bean Validation, MapStruct DTO mapping, springdoc-openapi documentation and Testcontainers-backed tests;
+        and a server-rendered site on Spring MVC and Thymeleaf. Both use Spring Data JPA over Hibernate with Lombok and Maven.
+
+ai_agent_section:
+  master: >-
+    Hands-on development with AI coding agents since 2025, across the engagements above. The agents do the typing;
+    I own the spec, the guardrails and the merge. Claude Code for terminal-driven work and OpenAI Codex for delegated,
+    isolated tasks that come back as pull requests I review and merge.
+
+skills:
+  - group: Core stack
+    items: [TypeScript, React, Node.js, NestJS, PostgreSQL, REST APIs, "full-stack product delivery (data model → API → UI → tests → CI/CD)"]
+  - group: Languages & runtimes
+    items: [TypeScript, JavaScript, Node.js, Java, Elixir, Python, SQL]
+  - group: Frontend
+    items: [React, Next.js, Angular, RxJS, Redux/RTK, Zustand, TanStack Query/Table, React Hook Form, Zod, WebSocket,
+            Tailwind, CSS Modules, styled-components, SCSS, shadcn/ui, MUI, Angular Material, Vite, Webpack,
+            SSR/SSG/ISR, technical SEO]
+  - group: Backend
+    items: [NestJS, Express.js, Phoenix, Ecto, Prisma, TypeORM, GraphQL, gRPC, Protobuf, REST, RabbitMQ, JWT/RBAC, OAuth]
+  - group: Java & Spring
+    items: [Spring Boot 3, Spring MVC, Spring Data JPA, Hibernate / JPA, "Spring Security (JWT, filter chain, method security)",
+            Bean Validation, Thymeleaf, springdoc-openapi / Swagger, MapStruct, Lombok, Maven, JUnit, Mockito, AssertJ,
+            Testcontainers, JSoup]
+  - group: Data
+    items: [PostgreSQL, Redis, MongoDB, Elasticsearch, DynamoDB, Kafka, ScyllaDB, database indexing, SQL views,
+            partitioning, query optimisation, migration design]
+  - group: Cloud & infrastructure
+    items: ["AWS (S3, Lambda, EKS, DynamoDB)", "GCP (Cloud Storage, Compute Engine, Cloud Functions)",
+            "Azure (App Service, DevOps CI/CD, Storage, Functions)", Terraform, Docker, Podman, Kubernetes (EKS),
+            GitHub Actions, Vercel, Mailgun, Linux, Git (GitHub, Bitbucket)]
+  - group: AI-assisted development
+    items: [Claude Code, OpenAI Codex, GitHub Copilot, CLAUDE.md / AGENTS.md, MCP, review of agent-generated code, OpenAI API integration]
+  - group: Practices
+    items: [end-to-end feature ownership, code review and staged rollout, hexagonal architecture, DDD/CQRS,
+            dependency injection, event-driven architecture, atomic transaction design, third-party API integration,
+            microservices, monorepo workflows, TDD, regulated-domain delivery, Figma to production UI, Swagger/Postman API work]
+
+languages:
+  - {name: English, level: C1}
+  - {name: Ukrainian, level: fluent}
+  - {name: Czech, level: basic}
+
+guardrails:
+  never_mention:
+    - that engagements overlapped or ran concurrently
+    - that a document was tailored or customised for the role
+  never_claim: [Go, Golang, Kotlin, Fastify, Valkey, Oracle, Flask, PixiJS, Phaser, MySQL, ClickHouse, Redshift,
+                Astro, Stripe, .NET, C#, PHP]
+  personal_only: [Supabase]

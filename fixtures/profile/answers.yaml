@@ -1,0 +1,68 @@
+# data/answers.yaml — how the agent answers application forms on company sites (never on LinkedIn/Glassdoor Easy Apply).
+# Every answer comes from this file, from profile.yaml, or is computed by code. Nothing is guessed.
+# FICTIONAL candidate for the tests and `npm run demo` — every contact detail here is invented.
+# Your real answers live in data/answers.yaml (gitignored) and have the same shape.
+
+contact:
+  full_name: Alex Doe
+  first_name: Alex
+  last_name: Doe
+  email: alex.doe@example.com
+  phone: "+420 600 000 000"
+  phone_alt: "+380 50 000 00 00"
+  city: Brno
+  country: Czech Republic
+  github: https://github.com/alex-doe-example
+  website: https://github.com/alex-doe-example
+  linkedin: https://www.linkedin.com/in/alex-doe-example
+
+eligibility:
+  # never inferred — only what you've stated. The apply rules answer "authorised to work" Yes for Czechia (No for a
+  # question naming another country), "visa sponsorship" No and "relocation" No.
+  work_authorization:
+    czechia: yes
+    other_countries: no
+  needs_visa_sponsorship: no
+  location:
+    home: Brno
+    remote: yes
+    commute_ok: [ Brno, Prague ]
+  willing_to_relocate:
+    prague_or_brno: no
+    elsewhere: no
+
+logistics:
+  notice_period: Immediately
+  salary_expectation: ask      # not in the CV: salary questions wait for you
+
+current_role:
+  employer: Brightstaff         # client placement: Northwind Market
+  title: from profile.yaml     # latest engagement's first title
+
+experience_rules:
+  # numeric answers are computed from these rules, never typed in
+  total_years: from person.career_start, rounded down to 0.5
+  years_with_tech: merged date ranges of engagements whose stack lists the technology, rounded down to 0.5
+  academic_and_personal_projects: never counted as commercial years
+  technology_not_in_profile: 'answer 0 / "No" — a direct question gets a truthful answer'
+
+languages: { source: profile.yaml }
+education: { source: profile.yaml, gpa: skip }
+
+consent:
+  required_data_processing: true # mandatory GDPR / privacy boxes only
+  optional_talent_pool: false
+  optional_marketing: false
+
+demographics:
+  # gender, ethnicity, disability, veteran status and similar
+  answer: prefer not to say
+
+referral_source:
+  rule: from the vacancy's source (LinkedIn / Glassdoor / DOU / Djinni / company website)
+
+free_text:
+  rule: written per vacancy from profile.yaml in your base letter's voice; same grounding checks as the CV
+
+learned: []
+  # {question, normalized, answer, source_url, date} — appended from your answers to "ask"

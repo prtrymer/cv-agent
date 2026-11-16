@@ -1,0 +1,12 @@
+<!doctype html>
+<!-- Test fixture: a DOU vacancy page while logged in — "Відгукнутися" reveals a message box and a CV upload. -->
+<html lang="uk"><head><meta charset="utf-8"><title>Full Stack Developer в Acme | DOU</title>
+<style>#reply-form { display: none; } #reply-form.open { display: block; } textarea { width: 400px; height: 120px; }</style></head>
+<body><h1>Full Stack Developer</h1><p>Опис вакансії.</p>
+<div class="reply"><button type="button" class="reply-btn" onclick="document.getElementById('reply-form').classList.add('open')">Відгукнутися</button></div>
+<form id="reply-form" onsubmit="event.preventDefault(); document.body.innerHTML = '<p>Ваш відгук надіслано</p>'">
+  <textarea name="message" placeholder="Кілька слів про себе"></textarea>
+  <p><label>Резюме <input type="file" name="cv"></label></p>
+  <button type="submit">Надіслати</button>
+</form>
+</body></html>

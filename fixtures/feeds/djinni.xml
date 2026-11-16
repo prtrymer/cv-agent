@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>Djinni fixture</title><link>https://djinni.co/jobs/</link><description>synthetic demo data</description>
+<item>
+<title>Senior Backend Engineer (Kotlin)</title>
+<link>https://djinni.co/jobs/900002-senior-backend-engineer-kotlin/</link>
+<description><![CDATA[<p>We build payment infrastructure. Must have: 5+ years of experience with Kotlin and Spring, Kafka in production, PostgreSQL. Remote.</p>]]></description>
+</item>
+<item>
+<title>Middle Frontend Developer (React)</title>
+<link>https://djinni.co/jobs/900005-middle-frontend-developer-react/</link>
+<description><![CDATA[<p>React, TypeScript, Redux. Office in Warsaw, on-site only, no remote.</p>]]></description>
+</item>
+</channel></rss>

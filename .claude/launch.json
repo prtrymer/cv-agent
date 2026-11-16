@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx",
+        "src/web/server.ts",
+        "--no-open"
+      ],
+      "port": 4870
+    },
+    {
+      "name": "dashboard-check",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "CV_AGENT_PORT=4871",
+        "npx",
+        "tsx",
+        "src/web/server.ts",
+        "--no-open"
+      ],
+      "port": 4871
+    }
+  ]
+}
